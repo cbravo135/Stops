@@ -23,6 +23,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "Stops/StopNtuplizer/interface/Tools.h"
+
 #include "TTree.h"
 #include "TH1.h"
 #include "TLorentzVector.h"

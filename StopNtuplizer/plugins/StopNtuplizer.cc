@@ -84,6 +84,13 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel("slimmedMETs", metcoll);
     if(!metcoll.isValid()) return;
 
+    edm::Handle< reco::BeamSpot > theBeamSpot;
+    iEvent.getByLabel("offlineBeamSpot", theBeamSpot );
+    reco::BeamSpot::Point  BS= theBeamSpot->position();
+
+    edm::Handle< std::vector<reco::Conversion> > theConversions;
+    iEvent.getByLabel("reducedEgamma_reducedConversions", theConversions);
+
     const pat::MET *met=NULL;
     met=&(metcoll->front());
 
@@ -99,7 +106,7 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     elecs_phi.clear();
     elecs_eta.clear();
     elecs_E.clear();
-    bool tightE = false;
+    //bool tightE = false;
     Nelecs = 0;
 
     jets_pt.clear();
@@ -112,6 +119,7 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     tight_muon = -1;
 
     NPV = vertexV.size();
+    reco::Vertex::Point PV1p = vertexV.begin()->position();
     
     if(muons.isValid())
     {
@@ -139,45 +147,22 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
     }
 
+    std::vector<pat::Electron> ElecV;
+
     if(electrons.isValid())
     {
-        for(edm::View<pat::Electron>::const_iterator i_electron = patElectrons.begin();i_electron != patElectrons.end(); ++i_electron) 
+        for(edm::View<pat::Electron>::const_iterator i_E = patElectrons.begin();i_E != patElectrons.end(); ++i_E) 
         {
-            TE_h->Fill(i_electron->electronID("eidTight"));
-            LE_h->Fill(i_electron->electronID("eidLoose"));
-            if(!tightE)
-            {
-                if(i_electron->electronID("eidTight") == 7)
-                {
-                    elecs_pt.push_back(i_electron->pt());
-                    elecs_eta.push_back(i_electron->eta());
-                    elecs_phi.push_back(i_electron->phi());
-                    elecs_E.push_back(i_electron->energy());
-                    tightE = true;
-                    tight_elec = Nelecs;
-                    Nelecs++;
-                }
-                else if(i_electron->electronID("eidLoose") == 7)
-                {
-                    elecs_pt.push_back(i_electron->pt());
-                    elecs_eta.push_back(i_electron->eta());
-                    elecs_phi.push_back(i_electron->phi());
-                    elecs_E.push_back(i_electron->energy());
-                    Nelecs++;
-                }
-            }
-            else
-            {
-                if(i_electron->electronID("eidLoose") == 7)
-                {
-                    elecs_pt.push_back(i_electron->pt());
-                    elecs_eta.push_back(i_electron->eta());
-                    elecs_phi.push_back(i_electron->phi());
-                    elecs_E.push_back(i_electron->energy());
-                    Nelecs++;
-                }
-            }
+            ElecV.push_back(*i_E);
         }
+        std::vector<const pat::Electron* > Es = tools::ElectronSelector(ElecV,10,4,PV1p,0.02,1.0,0,0,theConversions,BS);
+        int numEl = Es.size();
+        for(int i = 0;i < numEl; ++i)
+        {
+            std::cout << "E pt = " << Es[i]->pt() << endl;
+
+        }
+
     }
     
     if(jets.isValid())

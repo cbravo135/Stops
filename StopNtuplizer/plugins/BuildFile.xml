@@ -5,4 +5,5 @@
 <use name="DataFormats/VertexReco"/>
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="RecoEgamma/EgammaTools"/>
 <flags EDM_PLUGIN="1"/>
