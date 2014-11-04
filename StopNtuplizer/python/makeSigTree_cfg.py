@@ -19,7 +19,8 @@ process.source = cms.Source("PoolSource",
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("stopSigNtuple.root") )
 
-process.demo = cms.EDAnalyzer('StopNtuplizer'
+process.demo = cms.EDAnalyzer('StopNtuplizer',
+        convLabel = cms.InputTag("reducedEgamma","reducedConversions")
 )
 
 

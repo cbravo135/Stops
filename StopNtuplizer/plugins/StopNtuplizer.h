@@ -48,7 +48,10 @@ class StopNtuplizer : public edm::EDAnalyzer {
         virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
         virtual void endJob() override;
 
+        edm::ParameterSet parameters;
+
         edm::Service<TFileService> fs;
+        edm::EDGetTokenT<reco::ConversionCollection> convCollectionLabel_;
 
         TTree * tree;
         TH1D * nEv_h;

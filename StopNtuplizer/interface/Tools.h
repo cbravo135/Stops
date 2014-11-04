@@ -169,12 +169,7 @@ bool usePFiso);
 
 std::vector<const pat::Electron* > ElectronSelector(const std::vector<pat::Electron>  & thePatElectrons, 
 double v_electron_pt, 
-double v_electron_eta, 
 reco::Vertex::Point PV,
-double v_electron_d0, 
-double v_electron_reliso,
-bool usePFiso, 
-bool bool_electron_chargeConsistency,
 edm::Handle< std::vector<reco::Conversion> > &theConversions,
 reco::BeamSpot::Point BS);
 

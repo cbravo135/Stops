@@ -39,7 +39,10 @@ StopNtuplizer::StopNtuplizer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
-   
+    parameters = iConfig;
+
+    convCollectionLabel_ = consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("convLabel"));
+
 
 }
 
@@ -88,8 +91,8 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel("offlineBeamSpot", theBeamSpot );
     reco::BeamSpot::Point  BS= theBeamSpot->position();
 
-    edm::Handle< std::vector<reco::Conversion> > theConversions;
-    iEvent.getByLabel("reducedEgamma_reducedConversions", theConversions);
+    edm::Handle< reco::ConversionCollection > theConversions;
+    iEvent.getByToken(convCollectionLabel_, theConversions);
 
     const pat::MET *met=NULL;
     met=&(metcoll->front());
@@ -155,11 +158,14 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             ElecV.push_back(*i_E);
         }
-        std::vector<const pat::Electron* > Es = tools::ElectronSelector(ElecV,10,4,PV1p,0.02,1.0,0,0,theConversions,BS);
-        int numEl = Es.size();
-        for(int i = 0;i < numEl; ++i)
+        std::vector<const pat::Electron* > Es = tools::ElectronSelector(ElecV,10.0,PV1p,theConversions,BS);
+        Nelecs = Es.size();
+        for(int i = 0;i < Nelecs; ++i)
         {
-            std::cout << "E pt = " << Es[i]->pt() << endl;
+            elecs_pt.push_back(Es[i]->pt());
+            elecs_eta.push_back(Es[i]->eta());
+            elecs_phi.push_back(Es[i]->phi());
+            elecs_E.push_back(Es[i]->energy());
 
         }
 
