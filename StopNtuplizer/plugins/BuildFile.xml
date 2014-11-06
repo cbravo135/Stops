@@ -6,4 +6,5 @@
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="RecoEgamma/EgammaTools"/>
+<use name="DataFormats/HepMCCandidate"/>
 <flags EDM_PLUGIN="1"/>

@@ -76,7 +76,6 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     edm::Handle<reco::VertexCollection> vertices;
     iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertices);
-    
     reco::VertexCollection vertexV = *(vertices.product());
 
     edm::Handle<edm::View<pat::Jet> > jets;
@@ -90,6 +89,9 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle< reco::BeamSpot > theBeamSpot;
     iEvent.getByLabel("offlineBeamSpot", theBeamSpot );
     reco::BeamSpot::Point  BS= theBeamSpot->position();
+
+    edm::Handle< reco::GenParticleCollection > theGenParts;
+    iEvent.getByLabel("prunedGenParticles", theGenParts );
 
     edm::Handle< reco::ConversionCollection > theConversions;
     iEvent.getByToken(convCollectionLabel_, theConversions);
@@ -124,6 +126,15 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     NPV = vertexV.size();
     reco::Vertex::Point PV1p = vertexV.begin()->position();
     
+    if(theGenParts.isValid())
+    {
+        for(unsigned int i = 0; i < theGenParts->size() ; i++) 
+        {
+            const reco::GenParticle &genPart = (*theGenParts)[i];
+            std::cout << "Gen ID: " << genPart.pdgId() << std::endl;
+        }
+    }
+
     if(muons.isValid())
     {
         for(edm::View<pat::Muon>::const_iterator i_muon = patMuons.begin();i_muon != patMuons.end(); ++i_muon) 
