@@ -189,7 +189,7 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     met_phi = met->phi();
     met_E = met->energy();
 
-    if(tightMu) tree->Fill();
+    if(tightMu || Nelecs > 0) tree->Fill();
 
 
 }

@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-        'file:/afs/cern.ch/user/b/bravo/data/susy/0012F41F-FA17-E411-A1FF-0025905A48B2.root'
+        'file:/afs/cern.ch/user/b/bravo/data/susy/ttbar/0012F41F-FA17-E411-A1FF-0025905A48B2.root'
     )
 )
 
