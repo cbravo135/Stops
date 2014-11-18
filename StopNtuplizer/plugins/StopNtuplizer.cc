@@ -126,7 +126,7 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     NPV = vertexV.size();
     reco::Vertex::Point PV1p = vertexV.begin()->position();
     
-    if(theGenParts.isValid())
+    /*if(theGenParts.isValid())
     {
         for(unsigned int i = 0; i < theGenParts->size() ; i++) 
         {
@@ -138,13 +138,14 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             std::cout << std::endl;
         }
-    }
+    }*/
 
     if(muons.isValid())
     {
         for(edm::View<pat::Muon>::const_iterator i_muon = patMuons.begin();i_muon != patMuons.end(); ++i_muon) 
         {
             if(!(i_muon->isLooseMuon())) continue;
+            if(i_muon->pt() < 30) continue;
             muons_pt.push_back(i_muon->pt());
             muons_eta.push_back(i_muon->eta());
             muons_phi.push_back(i_muon->phi());
@@ -175,13 +176,15 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             ElecV.push_back(*i_E);
         }
         std::vector<const pat::Electron* > Es = tools::ElectronSelector(ElecV,10.0,PV1p,theConversions,BS);
-        Nelecs = Es.size();
-        for(int i = 0;i < Nelecs; ++i)
+        int Ne = Es.size();
+        for(int i = 0;i < Ne; ++i)
         {
+            if(Es[i]->pt() < 30) continue;
             elecs_pt.push_back(Es[i]->pt());
             elecs_eta.push_back(Es[i]->eta());
             elecs_phi.push_back(Es[i]->phi());
             elecs_E.push_back(Es[i]->energy());
+            Nelecs++;
 
         }
 
@@ -191,7 +194,7 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
         for(edm::View<pat::Jet>::const_iterator i_jet = patJets.begin();i_jet != patJets.end(); ++i_jet) 
         {
-            bool keepJet = true;
+            /*bool keepJet = true;
             TLorentzVector jet4v;
             jet4v.SetPtEtaPhiE(i_jet->pt(),i_jet->eta(),i_jet->phi(),i_jet->energy());
             for(int i = 0;i < Nelecs; ++i) 
@@ -206,7 +209,8 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 m4v.SetPtEtaPhiE(muons_pt.at(i),muons_eta.at(i),muons_phi.at(i),muons_E.at(i));
                 if(m4v.DeltaR(jet4v) < 0.3) keepJet = false;
             }
-            if(!keepJet) continue;
+            if(!keepJet) continue;*/
+            if(i_jet->pt() < 30) continue;
             jets_pt.push_back(i_jet->pt());
             jets_eta.push_back(i_jet->eta());
             jets_phi.push_back(i_jet->phi());
