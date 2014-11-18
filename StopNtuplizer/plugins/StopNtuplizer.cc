@@ -131,7 +131,12 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         for(unsigned int i = 0; i < theGenParts->size() ; i++) 
         {
             const reco::GenParticle &genPart = (*theGenParts)[i];
-            std::cout << "Gen ID: " << genPart.pdgId() << std::endl;
+            std::cout << "pdgID: " << genPart.pdgId() << "\tstatus: " << genPart.status() << "\tmotherN: " << genPart.numberOfMothers();
+            for(unsigned int ii = 0; ii < genPart.numberOfMothers(); ii++)
+            {
+                std::cout << "\tmotherID: " << genPart.motherRef(ii)->pdgId();
+            }
+            std::cout << std::endl;
         }
     }
 
@@ -186,12 +191,27 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
         for(edm::View<pat::Jet>::const_iterator i_jet = patJets.begin();i_jet != patJets.end(); ++i_jet) 
         {
-                jets_pt.push_back(i_jet->pt());
-                jets_eta.push_back(i_jet->eta());
-                jets_phi.push_back(i_jet->phi());
-                jets_E.push_back(i_jet->energy());
-                Njets++;
-            
+            bool keepJet = true;
+            TLorentzVector jet4v;
+            jet4v.SetPtEtaPhiE(i_jet->pt(),i_jet->eta(),i_jet->phi(),i_jet->energy());
+            for(int i = 0;i < Nelecs; ++i) 
+            {
+                TLorentzVector e4v;
+                e4v.SetPtEtaPhiE(elecs_pt.at(i),elecs_eta.at(i),elecs_phi.at(i),elecs_E.at(i));
+                if(e4v.DeltaR(jet4v) < 0.3) keepJet = false;
+            }
+            for(int i = 0;i < Nmuons; ++i) 
+            {
+                TLorentzVector m4v;
+                m4v.SetPtEtaPhiE(muons_pt.at(i),muons_eta.at(i),muons_phi.at(i),muons_E.at(i));
+                if(m4v.DeltaR(jet4v) < 0.3) keepJet = false;
+            }
+            if(!keepJet) continue;
+            jets_pt.push_back(i_jet->pt());
+            jets_eta.push_back(i_jet->eta());
+            jets_phi.push_back(i_jet->phi());
+            jets_E.push_back(i_jet->energy());
+            Njets++;
         }
     }
 
