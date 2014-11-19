@@ -122,23 +122,26 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     tight_elec = -1;
     tight_muon = -1;
+    Nlep1 = 0;
 
     NPV = vertexV.size();
     reco::Vertex::Point PV1p = vertexV.begin()->position();
     
-    /*if(theGenParts.isValid())
+    if(theGenParts.isValid())
     {
         for(unsigned int i = 0; i < theGenParts->size() ; i++) 
         {
             const reco::GenParticle &genPart = (*theGenParts)[i];
-            std::cout << "pdgID: " << genPart.pdgId() << "\tstatus: " << genPart.status() << "\tmotherN: " << genPart.numberOfMothers();
+            /*std::cout << "pdgID: " << genPart.pdgId() << "\tstatus: " << genPart.status() << "\tmotherN: " << genPart.numberOfMothers();
             for(unsigned int ii = 0; ii < genPart.numberOfMothers(); ii++)
             {
                 std::cout << "\tmotherID: " << genPart.motherRef(ii)->pdgId();
             }
-            std::cout << std::endl;
+            std::cout << std::endl;*/
+            if(genPart.numberOfMothers() == 0) continue;
+            if((TMath::Abs(genPart.pdgId()) == 11 || TMath::Abs(genPart.pdgId()) == 13) && genPart.status() == 1 && TMath::Abs(genPart.motherRef(0)->pdgId()) == 24) Nlep1++;
         }
-    }*/
+    }
 
     if(muons.isValid())
     {
@@ -146,6 +149,13 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             if(!(i_muon->isLooseMuon())) continue;
             if(i_muon->pt() < 30) continue;
+            double chargedHadronIso = i_muon->pfIsolationR04().sumChargedHadronPt;
+            double neutralHadronIso = i_muon->pfIsolationR04().sumNeutralHadronEt;
+            double photonIso = i_muon->pfIsolationR04().sumPhotonEt;
+            double beta = i_muon->pfIsolationR04().sumPUPt;
+            double pfRelIso  = ( chargedHadronIso + TMath::Max ( 0.0 ,neutralHadronIso + photonIso - 0.5 * beta ) )/i_muon->pt() ;
+            if(pfRelIso>0.15) continue;
+
             muons_pt.push_back(i_muon->pt());
             muons_eta.push_back(i_muon->eta());
             muons_phi.push_back(i_muon->phi());
@@ -194,7 +204,8 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
         for(edm::View<pat::Jet>::const_iterator i_jet = patJets.begin();i_jet != patJets.end(); ++i_jet) 
         {
-            /*bool keepJet = true;
+            if(i_jet->pt() < 30) continue;
+            bool keepJet = true;
             TLorentzVector jet4v;
             jet4v.SetPtEtaPhiE(i_jet->pt(),i_jet->eta(),i_jet->phi(),i_jet->energy());
             for(int i = 0;i < Nelecs; ++i) 
@@ -209,8 +220,7 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 m4v.SetPtEtaPhiE(muons_pt.at(i),muons_eta.at(i),muons_phi.at(i),muons_E.at(i));
                 if(m4v.DeltaR(jet4v) < 0.3) keepJet = false;
             }
-            if(!keepJet) continue;*/
-            if(i_jet->pt() < 30) continue;
+            if(!keepJet) continue;
             jets_pt.push_back(i_jet->pt());
             jets_eta.push_back(i_jet->eta());
             jets_phi.push_back(i_jet->phi());
@@ -262,6 +272,7 @@ StopNtuplizer::beginJob()
     tree->Branch("met_phi",&met_phi);
     tree->Branch("met_E",&met_E);
     tree->Branch("NPV",&NPV);
+    tree->Branch("Nlep1",&Nlep1);
   
 }
 

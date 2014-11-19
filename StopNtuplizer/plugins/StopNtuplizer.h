@@ -30,6 +30,7 @@
 #include "Stops/StopNtuplizer/interface/Tools.h"
 
 #include "TTree.h"
+#include "TMath.h"
 #include "TH1.h"
 #include "TLorentzVector.h"
 #include "TROOT.h"
@@ -91,5 +92,6 @@ class StopNtuplizer : public edm::EDAnalyzer {
         double met_E;
 
         int NPV;
+        int Nlep1;
 
 };
