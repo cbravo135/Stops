@@ -104,13 +104,28 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     muons_eta.clear();
     muons_E.clear();
     muons_ID.clear();
+    m_muons.clear();
     bool tightMu = false;
     Nmuons = 0;
+
+    Ngen_muons = 0;
+    gen_muons_pt.clear();
+    gen_muons_eta.clear();
+    gen_muons_phi.clear();
+    gen_muons_E.clear();
+
+    Ngen_elecs = 0;
+    gen_elecs_pt.clear();
+    gen_elecs_eta.clear();
+    gen_elecs_phi.clear();
+    gen_elecs_E.clear();
+
 
     elecs_pt.clear();
     elecs_phi.clear();
     elecs_eta.clear();
     elecs_E.clear();
+    m_elecs.clear();
     //bool tightE = false;
     Nelecs = 0;
 
@@ -122,7 +137,6 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     tight_elec = -1;
     tight_muon = -1;
-    Nlep1 = 0;
 
     NPV = vertexV.size();
     reco::Vertex::Point PV1p = vertexV.begin()->position();
@@ -139,7 +153,23 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             std::cout << std::endl;*/
             if(genPart.numberOfMothers() == 0) continue;
-            if((TMath::Abs(genPart.pdgId()) == 11 || TMath::Abs(genPart.pdgId()) == 13) && genPart.status() == 1 && TMath::Abs(genPart.motherRef(0)->pdgId()) == 24) Nlep1++;
+            if(!((TMath::Abs(genPart.pdgId()) == 11 || TMath::Abs(genPart.pdgId()) == 13) && genPart.status() == 1 && TMath::Abs(genPart.motherRef(0)->pdgId()) == 24)) continue;
+            if(TMath::Abs(genPart.pdgId()) == 11)
+            {
+                gen_elecs_pt.push_back(genPart.pt());
+                gen_elecs_eta.push_back(genPart.eta());
+                gen_elecs_phi.push_back(genPart.phi());
+                gen_elecs_E.push_back(genPart.energy());
+                Ngen_elecs++;
+            }
+            else
+            {
+                gen_muons_pt.push_back(genPart.pt());
+                gen_muons_eta.push_back(genPart.eta());
+                gen_muons_phi.push_back(genPart.phi());
+                gen_muons_E.push_back(genPart.energy());
+                Ngen_muons++;
+            }
         }
     }
 
@@ -161,6 +191,20 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             muons_phi.push_back(i_muon->phi());
             muons_E.push_back(i_muon->energy());
             Nmuons++;
+            TLorentzVector muon4V;
+            muon4V.SetPtEtaPhiE(i_muon->pt(),i_muon->eta(),i_muon->phi(),i_muon->energy());
+            bool matched = false;
+            for(int i =0; i < Ngen_muons; i++)
+            {
+                TLorentzVector genmV;
+                genmV.SetPtEtaPhiE(gen_muons_pt[i],gen_muons_eta[i],gen_muons_phi[i],gen_muons_E[i]);
+                if(genmV.DeltaR(muon4V) < 0.05 && !matched)
+                {
+                    matched = true;
+                    m_muons.push_back(i);
+                }
+            }
+            if(!matched) m_muons.push_back(-1);
             if(i_muon->isTightMuon(vertexV.at(0)))
             {
                 if(!tightMu)
@@ -195,6 +239,20 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             elecs_phi.push_back(Es[i]->phi());
             elecs_E.push_back(Es[i]->energy());
             Nelecs++;
+            TLorentzVector elec4V;
+            elec4V.SetPtEtaPhiE(Es[i]->pt(),Es[i]->eta(),Es[i]->phi(),Es[i]->energy());
+            bool matched = false;
+            for(int i =0; i < Ngen_elecs; i++)
+            {
+                TLorentzVector geneV;
+                geneV.SetPtEtaPhiE(gen_elecs_pt[i],gen_elecs_eta[i],gen_elecs_phi[i],gen_elecs_E[i]);
+                if(geneV.DeltaR(elec4V) < 0.05 && !matched)
+                {
+                    matched = true;
+                    m_elecs.push_back(i);
+                }
+            }
+            if(!matched) m_elecs.push_back(-1);
 
         }
 
@@ -256,12 +314,14 @@ StopNtuplizer::beginJob()
     tree->Branch("muons_ID",&muons_ID);
     tree->Branch("tight_muon",&tight_muon);
     tree->Branch("Nmuons",&Nmuons);
+    tree->Branch("m_muons",&m_muons);
     tree->Branch("elecs_pt",&elecs_pt);
     tree->Branch("elecs_eta",&elecs_eta);
     tree->Branch("elecs_phi",&elecs_phi);
     tree->Branch("elecs_E",&elecs_E);
     tree->Branch("tight_elec",&tight_elec);
     tree->Branch("Nelecs",&Nelecs);
+    tree->Branch("m_elecs",&m_elecs);
     tree->Branch("jets_pt",&jets_pt);
     tree->Branch("jets_eta",&jets_eta);
     tree->Branch("jets_phi",&jets_phi);
@@ -272,7 +332,16 @@ StopNtuplizer::beginJob()
     tree->Branch("met_phi",&met_phi);
     tree->Branch("met_E",&met_E);
     tree->Branch("NPV",&NPV);
-    tree->Branch("Nlep1",&Nlep1);
+    tree->Branch("Ngen_muons",&Ngen_muons);
+    tree->Branch("gen_muons_pt",&gen_muons_pt);
+    tree->Branch("gen_muons_eta",&gen_muons_eta);
+    tree->Branch("gen_muons_phi",&gen_muons_phi);
+    tree->Branch("gen_muons_E",&gen_muons_E);
+    tree->Branch("Ngen_elecs",&Ngen_elecs);
+    tree->Branch("gen_elecs_pt",&gen_elecs_pt);
+    tree->Branch("gen_elecs_eta",&gen_elecs_eta);
+    tree->Branch("gen_elecs_phi",&gen_elecs_phi);
+    tree->Branch("gen_elecs_E",&gen_elecs_E);
   
 }
 

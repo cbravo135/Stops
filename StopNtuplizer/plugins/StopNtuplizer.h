@@ -72,6 +72,7 @@ class StopNtuplizer : public edm::EDAnalyzer {
         std::vector<int> muons_ID;
         int tight_muon;
         int Nmuons;
+        std::vector<int> m_muons;
 
         std::vector<double> elecs_pt;
         std::vector<double> elecs_eta;
@@ -79,6 +80,7 @@ class StopNtuplizer : public edm::EDAnalyzer {
         std::vector<double> elecs_E;
         int tight_elec;
         int Nelecs;
+        std::vector<int> m_elecs;
 
         std::vector<double> jets_pt;
         std::vector<double> jets_eta;
@@ -92,6 +94,34 @@ class StopNtuplizer : public edm::EDAnalyzer {
         double met_E;
 
         int NPV;
-        int Nlep1;
+
+        int Ngen_muons;
+        std::vector<double> gen_muons_pt;
+        std::vector<double> gen_muons_eta;
+        std::vector<double> gen_muons_phi;
+        std::vector<double> gen_muons_E;
+
+        int Ngen_elecs;
+        std::vector<double> gen_elecs_pt;
+        std::vector<double> gen_elecs_eta;
+        std::vector<double> gen_elecs_phi;
+        std::vector<double> gen_elecs_E;
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
