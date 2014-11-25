@@ -153,7 +153,8 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             std::cout << std::endl;*/
             if(genPart.numberOfMothers() == 0) continue;
-            if(!((TMath::Abs(genPart.pdgId()) == 11 || TMath::Abs(genPart.pdgId()) == 13) && genPart.status() == 1 && TMath::Abs(genPart.motherRef(0)->pdgId()) == 24)) continue;
+            //if(!((TMath::Abs(genPart.pdgId()) == 11 || TMath::Abs(genPart.pdgId()) == 13) && genPart.status() == 1 && TMath::Abs(genPart.motherRef(0)->pdgId()) == 24)) continue;
+            if(!((TMath::Abs(genPart.pdgId()) == 11 || TMath::Abs(genPart.pdgId()) == 13) && TMath::Abs(genPart.motherRef(0)->pdgId()) == 24)) continue;
             if(TMath::Abs(genPart.pdgId()) == 11)
             {
                 gen_elecs_pt.push_back(genPart.pt());
@@ -292,7 +293,8 @@ StopNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     met_phi = met->phi();
     met_E = met->energy();
 
-    if(tightMu || Nelecs > 0) tree->Fill();
+    //if(tightMu || Nelecs > 0) tree->Fill();
+    tree->Fill();
 
 
 }
